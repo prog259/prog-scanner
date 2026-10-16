@@ -1,0 +1,11 @@
+{
+  "name": "prog-scanner",
+  "version": "1.1.0",
+  "description": "Read-only scanner that lists installed programs on Windows. Changes nothing.",
+  "bin": { "prog-scanner": "bin/prog-scanner.js" },
+  "files": ["bin/"],
+  "os": ["win32"],
+  "engines": { "node": ">=16" },
+  "license": "MIT",
+  "repository": { "type": "git", "url": "git+https://github.com/YOUR_USERNAME/prog-scanner.git" }
+}
