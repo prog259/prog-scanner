@@ -1,0 +1,32 @@
+name: release
+on:
+  push:
+    tags: ["v*"]
+permissions:
+  contents: write
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check versions match the tag
+        shell: bash
+        run: |
+          tag="${GITHUB_REF_NAME#v}"
+          cargo_v=$(grep -m1 '^version' Cargo.toml | sed 's/.*"\(.*\)"/\1/')
+          npm_v=$(grep -m1 '"version"' package.json | sed 's/.*: *"\(.*\)".*/\1/')
+          echo "tag=$tag cargo=$cargo_v npm=$npm_v"
+          [ "$tag" = "$cargo_v" ] && [ "$tag" = "$npm_v" ]
+      - name: Build
+        run: cargo build --release --locked
+      - name: Package and checksum
+        shell: pwsh
+        run: |
+          Copy-Item target/release/prog-scanner.exe prog-scanner-x86_64-windows.exe
+          $h = (Get-FileHash prog-scanner-x86_64-windows.exe -Algorithm SHA256).Hash.ToLower()
+          "$h  prog-scanner-x86_64-windows.exe" | Out-File -Encoding ascii prog-scanner-x86_64-windows.exe.sha256
+      - uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            prog-scanner-x86_64-windows.exe
+            prog-scanner-x86_64-windows.exe.sha256
